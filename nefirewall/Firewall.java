@@ -35,6 +35,10 @@ import org.openflow.util.HexString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.sql.*;
 
 public class Firewall implements IOFMessageListener, IFloodlightModule {
@@ -42,7 +46,8 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 	protected IFloodlightProviderService floodlightProvider;
 	Connection db_con = null;
 	ArrayList<IOFSwitch> updated;
-
+	Thread socketThread;
+	FloodlightContext cntx=null;
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
@@ -91,10 +96,28 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 		updated = new ArrayList<IOFSwitch>();
 		try{
 			Class.forName("org.postgresql.Driver");
-			db_con = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/ne","postgres","iithiith");
+			db_con = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/openflow","postgres","iithiith");
 		}catch(Exception e){
 			System.out.println(e.getMessage());
 		}
+		socketThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try{
+					ServerSocket tcpSocket = new ServerSocket(12345);
+					while(true){
+						Socket client = tcpSocket.accept();
+						System.out.println("New connection from "+client);
+						new UpdateHandler(updated,floodlightProvider,client,cntx);
+					}
+				}catch(IOException e){
+					System.out.println("Unable to create Server Socket");
+				}
+				
+			}
+		});
+		socketThread.start();
 
 	}
 
@@ -112,6 +135,7 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 	public net.floodlightcontroller.core.IListener.Command receive(
 			IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
 		// TODO Auto-generated method stub
+		this.cntx=cntx;
 		if(msg.getType() == OFType.PACKET_IN){
 			System.out.println("received packet in");
 			if(!updated.contains(sw)){
@@ -143,14 +167,6 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 		else
 			match.setNetworkProtocol(IPv4.PROTOCOL_UDP);
 		match.setNetworkSource(IPv4.toIPv4Address(network));
-		match.setTransportDestination(port);
-		/*match.setWildcards(((Integer)sw.getAttribute(IOFSwitch.PROP_FASTWILDCARDS)).intValue()
-                 & ~OFMatch.OFPFW_NW_PROTO & ~OFMatch.OFPFW_TP_DST
-                 & (0xFF | (prefix<< OFMatch.OFPFW_NW_SRC_SHIFT)| ((1<<9 -1)<<24)));
-		*/match.setNetworkSource(IPv4.toIPv4Address(network));
-		//match.setDataLayerDestination("00:00:00:00:00:12");
-		//match.setDataLayerSource("00:00:00:00:00:"+(port%100));
-		match.setNetworkProtocol(IPv4.PROTOCOL_TCP);
 		match.setTransportDestination(port);
 		System.out.println("wildcards are "+Integer.toBinaryString(match.getWildcards()));
 		OFFlowMod flowMod = (OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD);
