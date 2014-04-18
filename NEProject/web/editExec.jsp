@@ -39,7 +39,7 @@
         String network=null,prefix_length=null,protocol=null,port=null;
         String nnetwork=null,nprefix_length=null,nprotocol=null,nport=null;
         Class.forName("org.postgresql.Driver");
-        Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", "postgres", "iithiith");
+        Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
         Statement stmt = myConn.createStatement();
 
         String query = "SELECT * FROM " + tableName + ";";

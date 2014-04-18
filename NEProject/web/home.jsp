@@ -41,7 +41,7 @@
             <div class="col-lg-12">
                 <%                    try {
                         Class.forName("org.postgresql.Driver");
-                        Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", "postgres", "iithiith");
+                        Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
                         Statement stmt = myConn.createStatement();
                         String query = "SELECT * FROM " + getServletContext().getInitParameter("tableName") + ";";
                         System.out.println(query);

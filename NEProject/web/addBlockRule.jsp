@@ -40,7 +40,7 @@
                 try {
                     String ports[] = port.split("-");
                     Class.forName("org.postgresql.Driver");
-                    Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", "postgres", "iithiith");
+                    Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow",getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
                     System.out.println("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow");
                     Statement stmt = myConn.createStatement();
                     if (ports.length == 2) {
