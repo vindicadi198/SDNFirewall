@@ -116,7 +116,7 @@ public class UpdateHandler extends Thread {
 	}
 	public String writeBlockingRule(IOFSwitch sw,String network,short prefix,char proto,short port){
 		OFMatch match = new OFMatch();
-		match.setWildcards(Wildcards.EXACT.matchOn(Flag.TP_DST).matchOn(Flag.NW_SRC).withNwSrcMask(prefix).matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));
+		match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST).matchOn(Flag.NW_SRC).withNwSrcMask(prefix).matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));
 		match.setDataLayerType(Ethernet.TYPE_IPv4);
 		if(proto == 'T')
 			match.setNetworkProtocol(IPv4.PROTOCOL_TCP);
@@ -130,7 +130,7 @@ public class UpdateHandler extends Thread {
         flowMod.setCommand(OFFlowMod.OFPFC_ADD);
         flowMod.setIdleTimeout((short)0);
         flowMod.setHardTimeout((short)0);
-        flowMod.setPriority((short)100);
+        flowMod.setPriority((short)1000);
         flowMod.setBufferId(OFPacketOut.BUFFER_ID_NONE);
         flowMod.setFlags((short) (1 << 0));
         List<OFAction> actions = new ArrayList<OFAction>();
@@ -147,7 +147,7 @@ public class UpdateHandler extends Thread {
 
 	public String deleteBlockingRule(IOFSwitch sw,String network,short prefix,char proto,short port){
 		OFMatch match = new OFMatch();
-		match.setWildcards(Wildcards.EXACT.matchOn(Flag.TP_DST).matchOn(Flag.NW_SRC).withNwSrcMask(prefix).matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));
+		match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST).matchOn(Flag.NW_SRC).withNwSrcMask(prefix).matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));
 		match.setDataLayerType(Ethernet.TYPE_IPv4);
 		if(proto == 'T')
 			match.setNetworkProtocol(IPv4.PROTOCOL_TCP);
@@ -161,7 +161,7 @@ public class UpdateHandler extends Thread {
         flowMod.setCommand(OFFlowMod.OFPFC_DELETE);
         flowMod.setIdleTimeout((short)0);
         flowMod.setHardTimeout((short)0);
-        flowMod.setPriority((short)100);
+        flowMod.setPriority((short)1000);
         flowMod.setBufferId(OFPacketOut.BUFFER_ID_NONE);
         flowMod.setFlags((short) (1 << 0));
         List<OFAction> actions = new ArrayList<OFAction>();

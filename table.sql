@@ -1,10 +1,13 @@
 CREATE TABLE blocked(
-    network varchar(16) NOT NULL,
-    prefix_length numeric(2) NOT NULL,
+    src_network varchar(39),
+    src_prefix_length numeric(3),
+    dst_network varchar(39),
+    dst_prefix_length numeric(3),
     protocol char(1) NOT NULL,
     port int NOT NULL,
-    PRIMARY KEY(network,prefix_length,protocol,port),
+    priority int NOT NULL,
     CHECK (protocol in ('T','U')),
     CHECK (port>=1 AND port<=65536),
-    CHECK (prefix_length>=0 AND prefix_length<=32)
+    CHECK (src_prefix_length>=0 AND src_prefix_length<=128),
+    CHECK (dst_prefix_length>=0 AND dst_prefix_length<=128)
 );
