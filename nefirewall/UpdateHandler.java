@@ -36,10 +36,7 @@ import org.json.simple.parser.ParseException;
 
 public class UpdateHandler extends Thread {
 
-	String network;
-	short prefix_length;
-	char protocol;
-	short port;
+	Rule rule;
 	ArrayList<IOFSwitch> switches;
     char operator;
     protected IFloodlightProviderService floodlightProvider;
@@ -48,25 +45,26 @@ public class UpdateHandler extends Thread {
 	public UpdateHandler(ArrayList<IOFSwitch> updated,
 							IFloodlightProviderService flood,Socket cl,FloodlightContext cntx) {
 		this.client = cl;
-		String net;short prefix;char proto;short port;char oper;
+		String src_net,dst_net;short src_prefix,dst_prefix;char proto;short port,priority;char oper;
 		try{
 			InputStream sockStream = client.getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(sockStream));
 			String req = br.readLine();
 			System.out.println("request is "+req);
+			
 			JSONParser parser = new JSONParser();
 			Object jsonObj =parser.parse(req);
 			JSONObject json = (JSONObject) jsonObj;
-			net = (String)json.get("network");
-			prefix = Short.parseShort((String)json.get("prefix_length"));
+			
+			src_net = (String)json.get("src_network");
+			src_prefix = Short.parseShort((String)json.get("src_prefix_length"));
+			dst_net = (String)json.get("dst_network");
+			dst_prefix = Short.parseShort((String)json.get("dst_prefix_length"));
 			proto = ((String)json.get("protocol")).charAt(0);
 			port = Short.parseShort((String)json.get("port"));
+			priority = Short.parseShort((String)json.get("priority"));
 			oper = ((String)json.get("operation")).charAt(0);
-			System.out.println("Values are "+net+" "+prefix+" "+proto+" "+port+" "+oper);
-			this.network = net;
-			this.prefix_length = prefix;
-			this.protocol = proto;
-			this.port = port;
+			this.rule = new Rule(src_net, src_prefix, dst_net, dst_prefix, proto, port, priority);
 			this.switches = (ArrayList<IOFSwitch>)updated.clone();
 	        this.operator = oper;
 	        this.floodlightProvider = flood;
@@ -88,11 +86,11 @@ public class UpdateHandler extends Thread {
 	    for(IOFSwitch sw : this.switches){
 	    	System.out.println("Adding request for switch "+sw.getId());
             if(this.operator=='I'){
-            	ret=writeBlockingRule(sw, network, prefix_length, protocol, port);
+            	ret=Firewall.writeBlockingRule(sw,this.rule,this.cntx,this.floodlightProvider);
             }else if(this.operator=='D' || this.operator=='U'){
-            	ret=deleteBlockingRule(sw,network,prefix_length,protocol,port);
+            	ret=Firewall.deleteBlockingRule(sw,this.rule,this.cntx,this.floodlightProvider);
             	if(this.operator=='U'){
-            		ret=writeBlockingRule(sw, network, prefix_length, protocol, port);
+            		ret=Firewall.writeBlockingRule(sw,this.rule,this.cntx,this.floodlightProvider);
             	}
             }
             if(ret!=null){
@@ -107,73 +105,12 @@ public class UpdateHandler extends Thread {
 	    System.out.println("Sending success");
 	    try{
 	    	DataOutputStream os =new DataOutputStream(this.client.getOutputStream());
-			//BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
 			os.writeBytes("Success");
 	    	this.client.close();
 	    }catch(IOException e){
 	    	System.out.println("Client Socket close error "+e.getMessage());
 	    }
 	}
-	public String writeBlockingRule(IOFSwitch sw,String network,short prefix,char proto,short port){
-		OFMatch match = new OFMatch();
-		match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST).matchOn(Flag.NW_SRC).withNwSrcMask(prefix).matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));
-		match.setDataLayerType(Ethernet.TYPE_IPv4);
-		if(proto == 'T')
-			match.setNetworkProtocol(IPv4.PROTOCOL_TCP);
-		else
-			match.setNetworkProtocol(IPv4.PROTOCOL_UDP);
-		match.setNetworkSource(IPv4.toIPv4Address(network));
-		match.setTransportDestination(port);
-		OFFlowMod flowMod = (OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD);
-        flowMod.setMatch(match);
-        flowMod.setCookie(LearningSwitch.LEARNING_SWITCH_COOKIE);
-        flowMod.setCommand(OFFlowMod.OFPFC_ADD);
-        flowMod.setIdleTimeout((short)0);
-        flowMod.setHardTimeout((short)0);
-        flowMod.setPriority((short)1000);
-        flowMod.setBufferId(OFPacketOut.BUFFER_ID_NONE);
-        flowMod.setFlags((short) (1 << 0));
-        List<OFAction> actions = new ArrayList<OFAction>();
-        flowMod.setActions(actions);
-        try{
-        	sw.write(flowMod, this.cntx);
-        	sw.flush();
-        }catch(Exception e){
-        	System.out.println("Write flow rule failed UpdateHandler at"+Thread.currentThread().getStackTrace()[1].getLineNumber()+" with message "+e.getMessage());
-        	return e.getMessage();
-        }
-        return null;
-	}
 
-	public String deleteBlockingRule(IOFSwitch sw,String network,short prefix,char proto,short port){
-		OFMatch match = new OFMatch();
-		match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST).matchOn(Flag.NW_SRC).withNwSrcMask(prefix).matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));
-		match.setDataLayerType(Ethernet.TYPE_IPv4);
-		if(proto == 'T')
-			match.setNetworkProtocol(IPv4.PROTOCOL_TCP);
-		else
-			match.setNetworkProtocol(IPv4.PROTOCOL_UDP);
-		match.setNetworkSource(IPv4.toIPv4Address(network));
-		match.setTransportDestination(port);
-		OFFlowMod flowMod = (OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD);
-        flowMod.setMatch(match);
-        flowMod.setCookie(LearningSwitch.LEARNING_SWITCH_COOKIE);
-        flowMod.setCommand(OFFlowMod.OFPFC_DELETE);
-        flowMod.setIdleTimeout((short)0);
-        flowMod.setHardTimeout((short)0);
-        flowMod.setPriority((short)1000);
-        flowMod.setBufferId(OFPacketOut.BUFFER_ID_NONE);
-        flowMod.setFlags((short) (1 << 0));
-        List<OFAction> actions = new ArrayList<OFAction>();
-        flowMod.setActions(actions);
-        flowMod.setOutPort(OFPort.OFPP_NONE);
-        try{
-        	sw.write(flowMod, this.cntx);
-        	sw.flush();
-        }catch(Exception e){
-        	System.out.println("Delete flow rule failed UpdateHandler at"+Thread.currentThread().getStackTrace()[1].getLineNumber()+" with message "+e.getMessage());
-        	return e.getMessage();
-        }
-        return null;
-	}
+	
 }
