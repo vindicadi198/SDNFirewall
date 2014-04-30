@@ -54,9 +54,9 @@
                     System.out.println("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow");
                     PreparedStatement prepStmnt = myConn.prepareStatement("Insert into blocked values (?,?,?,?,?,?,?)");
                     prepStmnt.setString(1, src_network);
-                    prepStmnt.setString(2, src_prefix_length);
+                    prepStmnt.setInt(2, Integer.parseInt(src_prefix_length));
                     prepStmnt.setString(3, dst_network);
-                    prepStmnt.setString(4, dst_prefix_length);
+                    prepStmnt.setInt(4, Integer.parseInt(dst_prefix_length));
                     prepStmnt.setString(5, protocol);
                     prepStmnt.setInt(7, Integer.parseInt(priority));
                     if (ports.length == 2) {

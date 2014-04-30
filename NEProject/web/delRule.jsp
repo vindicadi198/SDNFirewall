@@ -44,9 +44,9 @@
         Connection myConn = DriverManager.getConnection("jdbc:postgresql://" + getServletContext().getInitParameter("server") + ":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
         PreparedStatement prepStmnt = myConn.prepareStatement("DELETE FROM blocked WHERE src_network=? AND src_prefix_length=? AND dst_network=? AND dst_prefix_length=? AND protocol=? AND port=? AND priority=?");
         prepStmnt.setString(1, src_network);
-        prepStmnt.setString(2, src_prefix_length);
+        prepStmnt.setInt(2, Integer.parseInt(src_prefix_length));
         prepStmnt.setString(3, dst_network);
-        prepStmnt.setString(4, dst_prefix_length);
+        prepStmnt.setInt(4, Integer.parseInt(dst_prefix_length));
         prepStmnt.setString(5, protocol);
         prepStmnt.setInt(6, Integer.parseInt(port));
         prepStmnt.setInt(7, Integer.parseInt(priority));
