@@ -1,5 +1,7 @@
 package net.floodlightcontroller.nefirewall;
 
+import org.python.antlr.PythonParser.return_stmt_return;
+
 public class Rule {
 	public String src_network;
 	public short src_prefix_length;
@@ -23,6 +25,10 @@ public class Rule {
 		this.port = port;
 		this.priority = priority;
 
+	}
+	@Override
+	public String toString(){
+		return src_network+" "+src_prefix_length+" "+dst_network+" "+dst_prefix_length+" "+protocol+" "+port+" "+priority;
 	}
 
 }

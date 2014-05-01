@@ -181,6 +181,7 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 	public static String writeBlockingRule(IOFSwitch sw, Rule rule,
 			FloodlightContext cntx,
 			IFloodlightProviderService floodlightProvider) {
+		System.out.println("writing rule "+rule);
 		OFMatch match = new OFMatch();
 		match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST)
 				.matchOn(Flag.NW_SRC).withNwSrcMask(rule.src_prefix_length)
@@ -213,6 +214,7 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 		flowMod.setActions(actions);
 		try {
 			sw.write(flowMod, cntx);
+			sw.flush();
 		} catch (Exception e) {
 			System.out.println("Write flow rule failed at"
 					+ Thread.currentThread().getStackTrace()[1].getLineNumber()
@@ -257,6 +259,7 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 		flowMod.setActions(actions);
 		try {
 			sw.write(flowMod, cntx);
+			sw.flush();
 		} catch (Exception e) {
 			System.out.println("Delete flow rule failed at"
 					+ Thread.currentThread().getStackTrace()[1].getLineNumber()

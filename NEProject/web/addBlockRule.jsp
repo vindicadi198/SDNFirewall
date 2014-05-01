@@ -50,7 +50,7 @@
                 try {
                     String ports[] = port.split("-");
                     Class.forName("org.postgresql.Driver");
-                    Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", "postgres", "iithiith");
+                    Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
                     System.out.println("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow");
                     PreparedStatement prepStmnt = myConn.prepareStatement("Insert into blocked values (?,?,?,?,?,?,?)");
                     prepStmnt.setString(1, src_network);
@@ -61,7 +61,7 @@
                     prepStmnt.setInt(7, Integer.parseInt(priority));
                     if (ports.length == 2) {
                         for (int i = Integer.parseInt(ports[0]); i <= Integer.parseInt(ports[1]); i++) {
-                            String jsonData = "{\"operation\":\"I\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + i +"\",\"prority\":\"" + priority + "\"}\n";
+                            String jsonData = "{\"operation\":\"I\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + i +"\",\"priority\":\"" + priority + "\"}\n";
                             String res = client.send(jsonData);
                             if (res.contains("Success")) {
                                 //String query = "INSERT INTO " + getServletContext().getInitParameter("tableName") + " VALUES('" + network + "'," + prefix_length + ",'" + protocol + "'," + i + ");";
@@ -75,7 +75,7 @@
                             
                         }
                     } else {
-                        String jsonData = "{\"operation\":\"I\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port +"\",\"prority\":\"" + priority + "\"}\n";
+                        String jsonData = "{\"operation\":\"I\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port +"\",\"priority\":\"" + priority + "\"}\n";
                             String res = client.send(jsonData);
                         if (res.contains("Success")) {
                             //String query = "INSERT INTO " + getServletContext().getInitParameter("tableName") + " VALUES('" + network + "'," + prefix_length + ",'" + protocol + "'," + port + ");";
@@ -114,7 +114,7 @@
                     <option>U</option>
                 </select>
                 <input type="text" class="form-control inbetween-elem" placeholder="Port Number" required="" name="port">
-                <input type="text" class="form-control bottom-elem" placeholder="Prority" required="" name="priority">
+                <input type="text" class="form-control bottom-elem" placeholder="Priority" required="" name="priority">
                 <button class="btn btn-lg btn-primary btn-block" type="submit">Block</button>
             </form>
         </div>

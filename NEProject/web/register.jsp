@@ -62,7 +62,7 @@
                     try {
                         System.out.println(password);
                         Class.forName("org.postgresql.Driver");
-                        Connection myConn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/openflow", "postgres", "1234");
+                        Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+ getServletContext().getInitParameter("server") + ":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
                         PreparedStatement prepStmnt = myConn.prepareStatement("Insert into users values (?,?,?)");
                         ses.setAttribute("name", name);
                         ses.setAttribute("email", email);

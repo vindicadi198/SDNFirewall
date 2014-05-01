@@ -65,6 +65,7 @@ public class UpdateHandler extends Thread {
 			priority = Short.parseShort((String)json.get("priority"));
 			oper = ((String)json.get("operation")).charAt(0);
 			this.rule = new Rule(src_net, src_prefix, dst_net, dst_prefix, proto, port, priority);
+			System.out.println(this.rule+" oper "+oper);
 			this.switches = (ArrayList<IOFSwitch>)updated.clone();
 	        this.operator = oper;
 	        this.floodlightProvider = flood;
@@ -84,7 +85,7 @@ public class UpdateHandler extends Thread {
 		System.out.println("Starting thread");
 		String ret="";
 	    for(IOFSwitch sw : this.switches){
-	    	System.out.println("Adding request for switch "+sw.getId());
+	    	System.out.println("Adding request for switch "+sw.getId()+" operator is"+this.operator);
             if(this.operator=='I'){
             	ret=Firewall.writeBlockingRule(sw,this.rule,this.cntx,this.floodlightProvider);
             }else if(this.operator=='D' || this.operator=='U'){
@@ -111,6 +112,5 @@ public class UpdateHandler extends Thread {
 	    	System.out.println("Client Socket close error "+e.getMessage());
 	    }
 	}
-
 	
 }

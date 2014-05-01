@@ -58,7 +58,7 @@
                     if (email != null) {
                         try {
                             Class.forName("org.postgresql.Driver");
-                            Connection myConn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/openflow", "postgres", "1234");
+                            Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+ getServletContext().getInitParameter("server") + ":5432/openflow",getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
                             PreparedStatement prepStmnt = myConn.prepareStatement("select username,email,password from users where email= ? and password=?");
 
                             prepStmnt.setString(1, email);
