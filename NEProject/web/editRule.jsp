@@ -58,9 +58,9 @@
         prepStmnt.setString(12, old_protocol);
         prepStmnt.setInt(13, Integer.parseInt(old_port));
         prepStmnt.setInt(14, Integer.parseInt(old_priority));
-        String jsonData = "{\"operation\":\"D\",\"src_network\":\"" + old_src_network + "\",\"src_prefix_length\":\"" + old_src_prefix_length +"\",\"dst_network\":\"" + old_dst_network + "\",\"dst_prefix_length\":\"" + old_dst_prefix_length + "\",\"protocol\":\"" + old_protocol + "\",\"port\":\"" + old_port +"\",\"prority\":\"" + old_priority + "\"}\n";
+        String jsonData = "{\"operation\":\"D\",\"src_network\":\"" + old_src_network + "\",\"src_prefix_length\":\"" + old_src_prefix_length +"\",\"dst_network\":\"" + old_dst_network + "\",\"dst_prefix_length\":\"" + old_dst_prefix_length + "\",\"protocol\":\"" + old_protocol + "\",\"port\":\"" + old_port +"\",\"priority\":\"" + old_priority + "\"}\n";
         String res1 = client.send(jsonData);
-        jsonData = "{\"operation\":\"I\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port +"\",\"prority\":\"" + priority + "\"}\n";
+        jsonData = "{\"operation\":\"I\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port +"\",\"priority\":\"" + priority + "\"}\n";
         String res2 = client.send(jsonData);
         if (res1.contains("Success") && res2.contains("Success")) {
             prepStmnt.executeUpdate();

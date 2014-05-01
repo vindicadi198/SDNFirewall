@@ -32,7 +32,7 @@
 
     <script>
         var pkeyval = "";
-        $("a[href='home.jsp'").parent().addClass("active");
+        $("a[href='home.jsp']").parent().addClass("active");
     </script>
 
     <div class="container theme-showcase" role="main" >
@@ -125,7 +125,7 @@
 </div>\
 </div>');
             }
-            pkeyval = "old_src_network="+src_network+"&old_src_prefix_length="+src_prefix_length+"&old_dst_network="+dst_network+"&old_dst_prefix_length="+dst_prefix_length+"&old_port"=port+"&old_protocol="+protocol+"&old_priority="+priority;
+            pkeyval = "old_src_network="+src_network+"&old_src_prefix_length="+src_prefix_length+"&old_dst_network="+dst_network+"&old_dst_prefix_length="+dst_prefix_length+"&old_port="+port+"&old_protocol="+protocol+"&old_priority="+priority;
         }
 
     </script>

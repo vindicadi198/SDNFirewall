@@ -50,7 +50,7 @@
         prepStmnt.setString(5, protocol);
         prepStmnt.setInt(6, Integer.parseInt(port));
         prepStmnt.setInt(7, Integer.parseInt(priority));
-        String jsonData = "{\"operation\":\"D\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port +"\",\"prority\":\"" + priority + "\"}\n";
+        String jsonData = "{\"operation\":\"D\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port +"\",\"priority\":\"" + priority + "\"}\n";
         String res = client.send(jsonData);
         if (res.contains("Success")) {
             prepStmnt.executeUpdate();
