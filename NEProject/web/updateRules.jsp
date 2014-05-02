@@ -23,9 +23,9 @@
 <%@page import="java.sql.Connection"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
-    //if (session.getAttribute("email") == null) {
-    //    response.sendRedirect("Signin.jsp");
-    //}
+    if (session.getAttribute("email") == null) {
+        response.sendRedirect("Signin.jsp");
+    }
 
 %>
 <!DOCTYPE html>

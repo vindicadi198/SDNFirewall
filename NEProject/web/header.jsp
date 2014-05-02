@@ -28,7 +28,7 @@
                         <li><a href="home.jsp">Home</a></li>
                         <li><a href="addBlockRule.jsp">Add Block Rule</a></li>
                         <li><a href="viewSuricataRules.jsp">Suricata Rule</a></li>
-
+                        <li><a href="updateRules.jsp">Update Rules</a></li>
                     </ul>
                     <% if (ses.getAttribute("email") == null) {%>
                     <ul class="nav navbar-right navbar-nav">
@@ -37,7 +37,7 @@
                     </ul>
                     <% } else { %>
                     <ul class="nav navbar-right navbar-nav">
-                        <li ><a href="profile.jsp"><% out.print(ses.getAttribute("name")); %></a></li>
+                        <li ><a href="#"><% out.print(ses.getAttribute("name")); %></a></li>
                         <li><a href="logout.jsp">Log out</a></li>
                     </ul>
                     <% }%>

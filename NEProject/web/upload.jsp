@@ -14,6 +14,7 @@
 <%@page import="java.sql.SQLException"%>
 <%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.Connection"%>
+<%@page import="com.neproject.*"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%            
             String rules="";
@@ -24,6 +25,7 @@
             ServletContext context = pageContext.getServletContext();
             //System.out.println(request.getSession().getServletContext().getRealPath("/data/"));
             String filePath = System.getProperty("java.io.tmpdir");//context.getInitParameter("file-upload");
+            filePath = filePath+"/";
         //filePath=request.getSession().getServletContext().getRealPath("/data/")+"\\";
 
             // Verify the content type
@@ -35,7 +37,7 @@
                 // maximum size that will be stored in memory
                 factory.setSizeThreshold(maxMemSize);
                 // Location to save data that is larger than maxMemSize.
-                factory.setRepository(new File("c:\\temp"));
+                factory.setRepository(new File(filePath));
 
                 // Create a new file upload handler
                 ServletFileUpload upload = new ServletFileUpload(factory);
@@ -72,6 +74,13 @@
                             fi.write(file);
                             out.println("Uploaded Filename: " + filePath
                                     + fileName + "<br>");
+                            if(Parser.parse(filePath+fileName, getServletContext().getInitParameter("server"), getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"))){
+                                out.println("<script>alert('Parsing Successful'</script>");
+                            }else{
+                                out.println("<script>alert('Parsing Failed'</script>");
+                            }
+                            response.sendRedirect("updateRules.jsp");
+                            
                         }
                     }
                     
