@@ -167,6 +167,8 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 						System.out.println("writing rule" + src_network + " "
 								+ dst_network + " port " + port);
 					}
+					ps.close();
+					addSuricataRules(sw);
 				} catch (SQLException e) {
 					System.out.println("Prepared Statement failed at "
 							+ Thread.currentThread().getStackTrace()[1]
@@ -177,17 +179,53 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 		}
 		return Command.CONTINUE;
 	}
-
+	public void addSuricataRules(IOFSwitch sw){
+		try{
+			PreparedStatement ps = db_con.prepareStatement("select *,row_number() over (order by count)+1000 as priority from rule_count natural join suricata order by count asc");
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				String src_network = rs.getString("src_network");
+				String dst_network = rs.getString("dst_network");
+				short src_prefix_length = rs
+						.getShort("src_prefix_length");
+				short dst_prefix_length = rs
+						.getShort("dst_prefix_length");
+				char protocol = rs.getString("protocol").charAt(0);
+				short port = rs.getShort("port");
+				short priority = rs.getShort("priority");
+				Rule block_rule = new Rule(src_network,
+						src_prefix_length, dst_network,
+						dst_prefix_length, protocol, port, priority);
+				writeBlockingRule(sw, block_rule, cntx,
+						floodlightProvider);
+				System.out.println("writing rule" + src_network + " "
+						+ dst_network + " port " + port);
+			}
+			ps.close();
+		}catch(Exception e){
+			System.out.println("Add suricata rule failed at"
+					+ Thread.currentThread().getStackTrace()[1].getLineNumber()
+					+ " with message " + e.getMessage());
+		}
+		
+	}
 	public static String writeBlockingRule(IOFSwitch sw, Rule rule,
 			FloodlightContext cntx,
 			IFloodlightProviderService floodlightProvider) {
 		System.out.println("writing rule "+rule);
 		OFMatch match = new OFMatch();
-		match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST)
+		Wildcards wildcards = Wildcards.FULL.matchOn(Flag.DL_TYPE).matchOn(Flag.NW_PROTO);
+		if(!rule.src_network.isEmpty())
+			wildcards = wildcards.matchOn(Flag.NW_SRC).withNwSrcMask(rule.src_prefix_length);
+		if(!rule.dst_network.isEmpty())
+			wildcards = wildcards.matchOn(Flag.NW_DST).withNwDstMask(rule.dst_prefix_length);
+		if(rule.port!=0)
+			wildcards = wildcards.matchOn(Flag.TP_DST);
+		/*match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST)
 				.matchOn(Flag.NW_SRC).withNwSrcMask(rule.src_prefix_length)
 				.matchOn(Flag.NW_DST).withNwDstMask(rule.dst_prefix_length)
-				.matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));
-
+				.matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));*/
+		match.setWildcards(wildcards);
 		match.setDataLayerType(Ethernet.TYPE_IPv4);
 		if (rule.protocol == 'T')
 			match.setNetworkProtocol(IPv4.PROTOCOL_TCP);
@@ -228,11 +266,18 @@ public class Firewall implements IOFMessageListener, IFloodlightModule {
 			FloodlightContext cntx,
 			IFloodlightProviderService floodlightProvider) {
 		OFMatch match = new OFMatch();
-		match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST)
+		Wildcards wildcards = Wildcards.FULL.matchOn(Flag.DL_TYPE).matchOn(Flag.NW_PROTO);
+		if(!rule.src_network.isEmpty())
+			wildcards = wildcards.matchOn(Flag.NW_SRC).withNwSrcMask(rule.src_prefix_length);
+		if(!rule.dst_network.isEmpty())
+			wildcards = wildcards.matchOn(Flag.NW_DST).withNwDstMask(rule.dst_prefix_length);
+		if(rule.port!=0)
+			wildcards = wildcards.matchOn(Flag.TP_DST);
+		/*match.setWildcards(Wildcards.FULL.matchOn(Flag.TP_DST)
 				.matchOn(Flag.NW_SRC).withNwSrcMask(rule.src_prefix_length)
 				.matchOn(Flag.NW_DST).withNwDstMask(rule.dst_prefix_length)
-				.matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));
-
+				.matchOn(Flag.NW_PROTO).matchOn(Flag.DL_TYPE));*/
+		match.setWildcards(wildcards);
 		match.setDataLayerType(Ethernet.TYPE_IPv4);
 		if (rule.protocol == 'T')
 			match.setNetworkProtocol(IPv4.PROTOCOL_TCP);

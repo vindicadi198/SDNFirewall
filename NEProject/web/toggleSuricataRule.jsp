@@ -44,7 +44,9 @@
                     prepStmnt.setInt(1, Integer.parseInt(signature_id));
                     toggleSuricataApply.setInt(2, Integer.parseInt(signature_id));
                     ResultSet resSet = prepStmnt.executeQuery();
+                    
                     if (resSet.next()) {
+                        System.out.println("Inside src_network not null "+apply);
                         if (Integer.parseInt(apply) == 1) {
                             toggleSuricataApply.setInt(1, 0);
                             String jsonData = "{\"operation\":\"D\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length + "\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port + "\",\"priority\":\"" + resSet.getString("priority") + "\"}\n";

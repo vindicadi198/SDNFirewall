@@ -32,7 +32,7 @@
 
     <script>
         var pkeyval = "";
-        $("a[href='home.jsp']").parent().addClass("active");
+        $("a[href='viewSuricataRules.jsp']").parent().addClass("active");
     </script>
 
     <div class="container theme-showcase" role="main" >
@@ -42,7 +42,7 @@
                 <%                    try {
                         Class.forName("org.postgresql.Driver");
                         Connection myConn = DriverManager.getConnection("jdbc:postgresql://" + getServletContext().getInitParameter("server") + ":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
-                        PreparedStatement prepStmnt = myConn.prepareStatement("SELECT * FROM suricata");
+                        PreparedStatement prepStmnt = myConn.prepareStatement("SELECT src_network,src_prefix_length,dst_network,dst_prefix_length,protocol,port,signature_id,apply FROM suricata natural join rule_count");
                         ResultSet resSet = prepStmnt.executeQuery();
                         int colCount = resSet.getMetaData().getColumnCount();
                         out.print("<table class='table table-bordered justified table-hover'>");

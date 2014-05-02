@@ -41,7 +41,7 @@
     <body> 
         <%@ include file="header.jsp" %>
         <script>
-            $("a[href='Signin.jsp'").parent().addClass("active");
+            $("a[href='Signin.jsp']").parent().addClass("active");
         </script>
 
         <div class="container">

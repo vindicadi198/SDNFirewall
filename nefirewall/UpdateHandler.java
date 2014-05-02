@@ -2,6 +2,7 @@ package net.floodlightcontroller.nefirewall;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -84,7 +85,9 @@ public class UpdateHandler extends Thread {
 	public void run(){
 		System.out.println("Starting thread");
 		String ret="";
-	    for(IOFSwitch sw : this.switches){
+		Set<Long> switcheSet = floodlightProvider.getAllSwitchDpids();
+	    for(Long dpid : switcheSet){
+	    	IOFSwitch sw = floodlightProvider.getSwitch(dpid);
 	    	System.out.println("Adding request for switch "+sw.getId()+" operator is"+this.operator);
             if(this.operator=='I'){
             	ret=Firewall.writeBlockingRule(sw,this.rule,this.cntx,this.floodlightProvider);
