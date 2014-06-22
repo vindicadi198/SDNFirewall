@@ -11,3 +11,10 @@ CREATE TABLE blocked(
     CHECK (src_prefix_length>=0 AND src_prefix_length<=128),
     CHECK (dst_prefix_length>=0 AND dst_prefix_length<=128)
 );
+
+CREATE TABLE users(
+	username varchar(40),
+	email varchar(40) PRIMARY KEY,
+	password varchar(100),
+	CHECK (email LIKE ('%@iith.ac.in'))
+);
