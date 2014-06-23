@@ -27,8 +27,19 @@
                     <ul class="nav navbar-nav">
                         <li><a href="home.jsp">Home</a></li>
                         <li><a href="addBlockRule.jsp">Add Block Rule</a></li>
-                           
+
                     </ul>
+                    <% if (ses.getAttribute("email") == null) {%>
+                    <ul class="nav navbar-right navbar-nav">
+                        <li ><a href="Signin.jsp">Sign in</a></li>
+                        <li><a href="register.jsp">Sign up</a></li>
+                    </ul>
+                    <% } else { %>
+                    <ul class="nav navbar-right navbar-nav">
+                        <li ><a href="profile.jsp"><% out.print(ses.getAttribute("name")); %></a></li>
+                        <li><a href="logout.jsp">Log out</a></li>
+                    </ul>
+                    <% }%>
                 </div>
             </div>
         </div>

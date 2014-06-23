@@ -125,3 +125,23 @@ function post_to_url(path, params, method) {
     document.body.appendChild(form);
     form.submit();
 }
+
+function edit_rule(pkeyval) {
+    //console.log("prevMac=" + prevMac + "&" + $("#edit_form").serialize());
+    $.ajax({url: "editRule.jsp",data: pkeyval + "&" + $("#edit_form").serialize(), success: function(result) {
+            alert(result);
+            //$("#result_panel").css("visibility","visible");
+            //$("#table_data").html(result);
+        }});
+
+}
+
+function delete_rule() {
+    //console.log("prevMac=" + prevMac + "&" + $("#edit_form").serialize());
+    $.ajax({url: "delRule.jsp", data: $("#edit_form").serialize(), success: function(result) {
+            alert(result);
+            //$("#result_panel").css("visibility","visible");
+            //$("#table_data").html(result);
+        }});
+
+}

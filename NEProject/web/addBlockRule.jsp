@@ -4,12 +4,19 @@
     Author     : Bhargav
 --%>
 
+<%@page import="java.sql.PreparedStatement"%>
 <%@page import="com.neproject.FirewallClient"%>
 <%@page import="java.sql.Statement"%>
 <%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.Connection"%>
 <%@page import="java.sql.SQLException"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<% 
+    if(session.getAttribute("email")==null){
+        response.sendRedirect("Signin.jsp");
+    }
+    
+%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -24,10 +31,13 @@
     <body>
         <%  
             
-            String network = request.getParameter("network");
-            String prefix_length = request.getParameter("prefix_length");
+            String src_network = request.getParameter("src_network");
+            String src_prefix_length = request.getParameter("src_prefix_length");
+            String dst_network = request.getParameter("dst_network");
+            String dst_prefix_length = request.getParameter("dst_prefix_length");
             String protocol = request.getParameter("protocol");
             String port = request.getParameter("port");
+            String priority = request.getParameter("priority");
             String server = getServletContext().getInitParameter("server");
             Integer serverPort = Integer.parseInt(getServletContext().getInitParameter("port"));
             FirewallClient client = (FirewallClient) session.getAttribute("client");
@@ -36,33 +46,42 @@
                 session.setAttribute("client", client);
             }
 
-            if (network != null) {
+            if (src_network != null) {
                 try {
                     String ports[] = port.split("-");
                     Class.forName("org.postgresql.Driver");
-                    Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow",getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
+                    Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", "postgres", "iithiith");
                     System.out.println("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow");
-                    Statement stmt = myConn.createStatement();
+                    PreparedStatement prepStmnt = myConn.prepareStatement("Insert into blocked values (?,?,?,?,?,?,?)");
+                    prepStmnt.setString(1, src_network);
+                    prepStmnt.setString(2, src_prefix_length);
+                    prepStmnt.setString(3, dst_network);
+                    prepStmnt.setString(4, dst_prefix_length);
+                    prepStmnt.setString(5, protocol);
+                    prepStmnt.setInt(7, Integer.parseInt(priority));
                     if (ports.length == 2) {
                         for (int i = Integer.parseInt(ports[0]); i <= Integer.parseInt(ports[1]); i++) {
-                            String jsonData = "{\"operation\":\"I\",\"network\":\"" + network + "\",\"prefix_length\":\"" + prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + i + "\"}\n";
+                            String jsonData = "{\"operation\":\"I\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + i +"\",\"prority\":\"" + priority + "\"}\n";
                             String res = client.send(jsonData);
                             if (res.contains("Success")) {
-                                String query = "INSERT INTO " + getServletContext().getInitParameter("tableName") + " VALUES('" + network + "'," + prefix_length + ",'" + protocol + "'," + i + ");";
-                                stmt.executeUpdate(query);
-                                System.out.println(query);
+                                //String query = "INSERT INTO " + getServletContext().getInitParameter("tableName") + " VALUES('" + network + "'," + prefix_length + ",'" + protocol + "'," + i + ");";
+                                prepStmnt.setInt(6, i);
+                                prepStmnt.executeUpdate();
+                                prepStmnt.close();
+                                //System.out.println(query);
                             }else{
-                                out.print("<script> alert('Inserted Successfully') </script>");
+                                out.print("<script> alert('Error Occured') </script>");
                             }
                             
                         }
                     } else {
-                        String jsonData = "{\"operation\":\"I\",\"network\":\"" + network + "\",\"prefix_length\":\"" + prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port + "\"}\n";
+                        String jsonData = "{\"operation\":\"I\",\"src_network\":\"" + src_network + "\",\"src_prefix_length\":\"" + src_prefix_length +"\",\"dst_network\":\"" + dst_network + "\",\"dst_prefix_length\":\"" + dst_prefix_length + "\",\"protocol\":\"" + protocol + "\",\"port\":\"" + port +"\",\"prority\":\"" + priority + "\"}\n";
                             String res = client.send(jsonData);
                         if (res.contains("Success")) {
-                            String query = "INSERT INTO " + getServletContext().getInitParameter("tableName") + " VALUES('" + network + "'," + prefix_length + ",'" + protocol + "'," + port + ");";
-                            stmt.executeUpdate(query);
-                            System.out.println(query);
+                            //String query = "INSERT INTO " + getServletContext().getInitParameter("tableName") + " VALUES('" + network + "'," + prefix_length + ",'" + protocol + "'," + port + ");";
+                            prepStmnt.setInt(6, Integer.parseInt(port));
+                            prepStmnt.executeUpdate();
+                            //System.out.println(query);
                                 }else{
                                 out.print("<script> alert('Inserted Successfully') </script>");
                             }
@@ -86,13 +105,16 @@
             </script>
             <form class="form-signin" role="form" method="POST" action="addBlockRule.jsp">
                 <h2 class="form-signin-heading">Add Block Rule</h2>
-                <input type="text" class="form-control top-elem" placeholder="Network" required="" autofocus="" name="network">
-                <input type="text" class="form-control inbetween-elem" placeholder="Prefix Length" required="" name="prefix_length">
+                <input type="text" class="form-control top-elem" placeholder="Src Network" required="" autofocus="" name="src_network">
+                <input type="text" class="form-control inbetween-elem" placeholder="Src Prefix Length" required="" name="src_prefix_length">
+                <input type="text" class="form-control inbetween-elem" placeholder="Dst Network" required="" autofocus="" name="dst_network">
+                <input type="text" class="form-control inbetween-elem" placeholder="Dst Prefix Length" required="" name="dst_prefix_length">
                 <select id="protocol" class="form-control inbetween-elem" name="protocol">
                     <option>T</option>
                     <option>U</option>
                 </select>
-                <input type="text" class="form-control bottom-elem" placeholder="Port Number" required="" name="port">
+                <input type="text" class="form-control inbetween-elem" placeholder="Port Number" required="" name="port">
+                <input type="text" class="form-control bottom-elem" placeholder="Prority" required="" name="priority">
                 <button class="btn btn-lg btn-primary btn-block" type="submit">Block</button>
             </form>
         </div>

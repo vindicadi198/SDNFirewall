@@ -3,6 +3,7 @@
     Created on : Mar 17, 2014, 8:59:41 AM
     Author     : Bhargav
 --%>
+<%@page import="java.sql.PreparedStatement"%>
 <%@page import="java.sql.ResultSet"%>
 <%@page import="java.sql.Statement"%>
 <%@page import="java.sql.DriverManager"%>
@@ -11,7 +12,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.io.*,java.util.*" %>
 <%
-
 
 %>
 <!DOCTYPE html>
@@ -31,7 +31,7 @@
     <%@ include file="header.jsp" %>
 
     <script>
-        var pkeyval="";
+        var pkeyval = "";
         $("a[href='home.jsp'").parent().addClass("active");
     </script>
 
@@ -41,14 +41,12 @@
             <div class="col-lg-12">
                 <%                    try {
                         Class.forName("org.postgresql.Driver");
-                        Connection myConn = DriverManager.getConnection("jdbc:postgresql://"+getServletContext().getInitParameter("server")+":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
-                        Statement stmt = myConn.createStatement();
-                        String query = "SELECT * FROM " + getServletContext().getInitParameter("tableName") + ";";
-                        System.out.println(query);
-                        ResultSet resSet = stmt.executeQuery(query);
+                        Connection myConn = DriverManager.getConnection("jdbc:postgresql://" + getServletContext().getInitParameter("server") + ":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
+                        PreparedStatement prepStmnt = myConn.prepareStatement("SELECT * FROM " + getServletContext().getInitParameter("tableName"));
+                        ResultSet resSet = prepStmnt.executeQuery();
                         int colCount = resSet.getMetaData().getColumnCount();
                         out.print("<table class='table table-bordered justified table-hover'>");
-                        out.print("<tr><th>Network</th><th>Prefix Length</th><th>Protocol</th><th>Port</th></tr>");
+                        out.print("<tr><th>Src Network</th><th>Src Prefix Length</th><th>Dst Network</th><th>Dst Prefix Length</th><th>Protocol</th><th>Port</th><th>Prority</th></tr>");
                         while (resSet.next()) {
                             out.print("<tr onclick='modalCall($(this)," + colCount + ",\"" + getServletContext().getInitParameter("tableName") + "\")'>");
                             for (int i = 1; i < colCount + 1; i++) {
@@ -59,6 +57,7 @@
 
                         }
                         out.print("</table>");
+                        prepStmnt.close();
 
                     } catch (ClassNotFoundException cnfe) {
                         System.err.println("Error loading driver: " + cnfe);
@@ -83,28 +82,39 @@
         function modalFormSet(elemnt, cnt) {
             $("#edit_form").html("");
             console.log(cnt);
-            
-            var network="";
-            var protocol="";
-            var prefix_length="";
-            var port="";
-            
+
+            var src_network = "";
+            var protocol = "";
+            var src_prefix_length = "";
+            var port = "";
+            var dst_prefix_length = "";
+            var dst_network = "";
+            var priority="";
+
             for (var i = 0; i < cnt; i++) {
-                if ($(elemnt).eq(i).attr("name") === "network") {
+                if ($(elemnt).eq(i).attr("name") === "src_network") {
+                    src_network = $(elemnt).eq(i).html();
+                } else if ($(elemnt).eq(i).attr("name") === "src_prefix_length") {
                     console.log("primary key is " + i);
-                    network = $(elemnt).eq(i).html();
+                    src_prefix_length = $(elemnt).eq(i).html();
                     console.log("primary key is " + i + " " + pkeyval);
-                }else if ($(elemnt).eq(i).attr("name") === "prefix_length") {
+                } else if ($(elemnt).eq(i).attr("name") === "dst_network") {
+                    dst_network = $(elemnt).eq(i).html();
+                } else if ($(elemnt).eq(i).attr("name") === "dst_prefix_length") {
                     console.log("primary key is " + i);
-                    prefix_length = $(elemnt).eq(i).html();
+                    dst_prefix_length = $(elemnt).eq(i).html();
                     console.log("primary key is " + i + " " + pkeyval);
-                }else if ($(elemnt).eq(i).attr("name") === "protocol") {
+                } else if ($(elemnt).eq(i).attr("name") === "protocol") {
                     console.log("primary key is " + i);
                     protocol = $(elemnt).eq(i).html();
                     console.log("primary key is " + i + " " + pkeyval);
-                }else if ($(elemnt).eq(i).attr("name") === "port") {
+                } else if ($(elemnt).eq(i).attr("name") === "port") {
                     console.log("primary key is " + i);
                     port = $(elemnt).eq(i).html();
+                    console.log("primary key is " + i + " " + pkeyval);
+                }else if ($(elemnt).eq(i).attr("name") === "priority") {
+                    console.log("primary key is " + i);
+                    priority = $(elemnt).eq(i).html();
                     console.log("primary key is " + i + " " + pkeyval);
                 }
                 console.log("entered loop");
@@ -115,7 +125,7 @@
 </div>\
 </div>');
             }
-            pkeyval=network+","+prefix_length+","+protocol+","+port;
+            pkeyval = "old_src_network="+src_network+"&old_src_prefix_length="+src_prefix_length+"&old_dst_network="+dst_network+"&old_dst_prefix_length="+dst_prefix_length+"&old_port"=port+"&old_protocol="+protocol+"&old_priority="+priority;
         }
 
     </script>
@@ -131,8 +141,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" onclick="edit('network,prefix_length,protocol,port', pkeyval, 'blocked')">Edit</button>
-                    <button type="button" class="btn btn-danger" onclick="delete_rec('network,prefix_length,protocol,port', pkeyval, 'blocked')">Delete</button>
+                    <button type="button" class="btn btn-success" onclick="edit_rule(pkeyval)">Edit</button>
+                    <button type="button" class="btn btn-danger" onclick="delete_rule()">Delete</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div><!-- /.modal-content -->
