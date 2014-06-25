@@ -23,7 +23,7 @@
 </context-param>
 <context-param>
   <param-name>db_passwd</param-name>
-  <param-value>iithiith</param-value>
+  <param-value>1234</param-value>
 </context-param>
 <context-param>
   <param-name>port</param-name>

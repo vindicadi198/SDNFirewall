@@ -42,15 +42,23 @@
                 <%                    try {
                         Class.forName("org.postgresql.Driver");
                         Connection myConn = DriverManager.getConnection("jdbc:postgresql://" + getServletContext().getInitParameter("server") + ":5432/openflow", getServletContext().getInitParameter("db_user"), getServletContext().getInitParameter("db_passwd"));
-                        PreparedStatement prepStmnt = myConn.prepareStatement("SELECT * FROM " + getServletContext().getInitParameter("tableName"));
+                        PreparedStatement prepStmnt = myConn.prepareStatement("SELECT * FROM suricata");
                         ResultSet resSet = prepStmnt.executeQuery();
                         int colCount = resSet.getMetaData().getColumnCount();
                         out.print("<table class='table table-bordered justified table-hover'>");
-                        out.print("<tr><th>Src Network</th><th>Src Prefix Length</th><th>Dst Network</th><th>Dst Prefix Length</th><th>Protocol</th><th>Port</th><th>Prority</th></tr>");
+                        out.print("<tr><th>Src Network</th><th>Src Prefix Length</th><th>Dst Network</th><th>Dst Prefix Length</th><th>Protocol</th><th>Port</th><th>Signature ID</th></tr>");
                         while (resSet.next()) {
-                            out.print("<tr onclick='modalCall($(this)," + colCount + ",\"" + getServletContext().getInitParameter("tableName") + "\")'>");
+                            if (resSet.getInt("apply") == 1) {
+                                out.print("<tr style='background-color:#4DB673'onclick='modalCall($(this)," + colCount + ",\"" + getServletContext().getInitParameter("tableName") + "\")'>");
+                            } else {
+                                out.print("<tr style='background-color:#C73131'onclick='modalCall($(this)," + colCount + ",\"" + getServletContext().getInitParameter("tableName") + "\")'>");
+                            }
                             for (int i = 1; i < colCount + 1; i++) {
-                                out.print("<td name=" + resSet.getMetaData().getColumnName(i) + ">" + resSet.getString(i) + "</td>");
+                                if (resSet.getMetaData().getColumnName(i).equals("apply")) {
+                                    out.print("<td name=" + resSet.getMetaData().getColumnName(i) + " style='display:none;'>" + resSet.getString(i) + "</td>");
+                                }else{
+                                    out.print("<td name=" + resSet.getMetaData().getColumnName(i) + ">" + resSet.getString(i) + "</td>");
+                                }
                             }
 
                             out.print("</tr>");
@@ -83,40 +91,12 @@
             $("#edit_form").html("");
             console.log(cnt);
 
-            var src_network = "";
-            var protocol = "";
-            var src_prefix_length = "";
-            var port = "";
-            var dst_prefix_length = "";
-            var dst_network = "";
-            var priority="";
+            var apply = "";
 
             for (var i = 0; i < cnt; i++) {
-                if ($(elemnt).eq(i).attr("name") === "src_network") {
-                    src_network = $(elemnt).eq(i).html();
-                } else if ($(elemnt).eq(i).attr("name") === "src_prefix_length") {
-                    console.log("primary key is " + i);
-                    src_prefix_length = $(elemnt).eq(i).html();
-                    console.log("primary key is " + i + " " + pkeyval);
-                } else if ($(elemnt).eq(i).attr("name") === "dst_network") {
-                    dst_network = $(elemnt).eq(i).html();
-                } else if ($(elemnt).eq(i).attr("name") === "dst_prefix_length") {
-                    console.log("primary key is " + i);
-                    dst_prefix_length = $(elemnt).eq(i).html();
-                    console.log("primary key is " + i + " " + pkeyval);
-                } else if ($(elemnt).eq(i).attr("name") === "protocol") {
-                    console.log("primary key is " + i);
-                    protocol = $(elemnt).eq(i).html();
-                    console.log("primary key is " + i + " " + pkeyval);
-                } else if ($(elemnt).eq(i).attr("name") === "port") {
-                    console.log("primary key is " + i);
-                    port = $(elemnt).eq(i).html();
-                    console.log("primary key is " + i + " " + pkeyval);
-                }else if ($(elemnt).eq(i).attr("name") === "priority") {
-                    console.log("primary key is " + i);
-                    priority = $(elemnt).eq(i).html();
-                    console.log("primary key is " + i + " " + pkeyval);
-                }
+                if ($(elemnt).eq(i).attr("name") === "apply") {
+                    apply = $(elemnt).eq(i).html();
+                } 
                 console.log("entered loop");
                 $("#edit_form").append('<div class="form-group clearfix">\
 <label for="' + $(elemnt).eq(i).attr("name") + '" class="col-sm-4 control-label">' + $(elemnt).eq(i).attr("name") + '</label>\
@@ -125,7 +105,18 @@
 </div>\
 </div>');
             }
-            pkeyval = "old_src_network="+src_network+"&old_src_prefix_length="+src_prefix_length+"&old_dst_network="+dst_network+"&old_dst_prefix_length="+dst_prefix_length+"&old_port="+port+"&old_protocol="+protocol+"&old_priority="+priority;
+            console.log("apply value is "+apply);
+            <%
+                if(session.getAttribute("email")!=null){
+                %>
+            if(apply==1){
+                console.log("Entered apply block");
+            $("#modal-footer").html('<button type="button" class="btn btn-danger" onclick="toggle_suricata_rule()">Revoke</button><button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
+        }else if(apply==0){
+            console.log("Entered apply block");
+            $("#modal-footer").html('<button type="button" class="btn btn-success" onclick="toggle_suricata_rule()">Apply</button><button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
+        }
+        <%}%>
         }
 
     </script>
@@ -137,17 +128,11 @@
                     <h4 class="modal-title" id="myModalLabel">Edit Block Rule</h4>
                 </div>
                 <div class="modal-body">
-                    <form class="form-horizontal" role="form" action="edit_exec.php" method="get" id="edit_form">
+                    <form class="form-horizontal" role="form"  method="get" id="edit_form">
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <%
-                if(session.getAttribute("email")!=null){
-                %>
-                    <button type="button" class="btn btn-success" onclick="edit_rule(pkeyval)">Edit</button>
-                    <button type="button" class="btn btn-danger" onclick="delete_rule()">Delete</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <% } %>
+                <div class="modal-footer" id="modal-footer">
+                    
                 </div>
             </div><!-- /.modal-content -->
         </div>

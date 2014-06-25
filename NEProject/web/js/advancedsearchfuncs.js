@@ -145,3 +145,14 @@ function delete_rule() {
         }});
 
 }
+
+function toggle_suricata_rule() {
+    //console.log("prevMac=" + prevMac + "&" + $("#edit_form").serialize());
+    $.ajax({url: "toggleSuricataRule.jsp", data: $("#edit_form").serialize(), success: function(result) {
+            console.log(result);
+            alert(result);
+            //$("#result_panel").css("visibility","visible");
+            //$("#table_data").html(result);
+        }});
+
+}

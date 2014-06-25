@@ -28,6 +28,7 @@ CREATE TABLE suricata(
     protocol char(1) NOT NULL,
     port int NOT NULL,
     signature_id int NOT NULL PRIMARY KEY,
+	apply numeric(1) NOT NULL,
     CHECK (protocol in ('T','U','I')),
     CHECK (port>=1 AND port<=65536),
     CHECK (src_prefix_length>=0 AND src_prefix_length<=128),

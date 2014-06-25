@@ -27,6 +27,7 @@
                     <ul class="nav navbar-nav">
                         <li><a href="home.jsp">Home</a></li>
                         <li><a href="addBlockRule.jsp">Add Block Rule</a></li>
+                        <li><a href="viewSuricataRules.jsp">Suricata Rule</a></li>
 
                     </ul>
                     <% if (ses.getAttribute("email") == null) {%>
