@@ -3,10 +3,19 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/adityakamath/Documents/iith/sem6/ne/project/ne-project/NEProject/web/editRule.jsp</file>
-            <file>file:/Users/adityakamath/Documents/iith/sem6/ne/project/ne-project/NEProject/web/addBlockRule.jsp</file>
-            <file>file:/Users/adityakamath/Documents/iith/sem6/ne/project/ne-project/NEProject/web/delRule.jsp</file>
-            <file>file:/Users/adityakamath/Documents/iith/sem6/ne/project/ne-project/NEProject/web/WEB-INF/web.xml</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/toggleSuricataRule.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/list.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/delExec.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/header.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/editRule.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/register.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/WEB-INF/web.xml</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/editExec.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/delRule.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/home.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/viewSuricataRules.jsp</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/js/advancedsearchfuncs.js</file>
+            <file>file:/C:/Users/Bhargav/Documents/ne-project/NEProject/web/addBlockRule.jsp</file>
         </group>
     </open-files>
 </project-private>

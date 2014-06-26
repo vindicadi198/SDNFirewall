@@ -29,6 +29,10 @@
   <param-name>port</param-name>
   <param-value>12345</param-value>
 </context-param>
+<context-param>
+  <param-name>file-upload</param-name>
+  <param-value>c:\temp</param-value>
+</context-param>
 <welcome-file-list>
     <welcome-file>
         home.jsp
