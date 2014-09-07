@@ -7,7 +7,7 @@ CREATE TABLE blocked(
     port int NOT NULL,
     priority int NOT NULL,
     CHECK (protocol in ('T','U')),
-    CHECK (port>=1 AND port<=65536),
+    CHECK (port>=0 AND port<=65536),
     CHECK (src_prefix_length>=0 AND src_prefix_length<=128),
     CHECK (dst_prefix_length>=0 AND dst_prefix_length<=128)
 );
@@ -30,7 +30,7 @@ CREATE TABLE suricata(
     signature_id int NOT NULL PRIMARY KEY,
 	apply numeric(1) NOT NULL,
     CHECK (protocol in ('T','U','I')),
-    CHECK (port>=1 AND port<=65536),
+    CHECK (port>=0 AND port<=65536),
     CHECK (src_prefix_length>=0 AND src_prefix_length<=128),
     CHECK (dst_prefix_length>=0 AND dst_prefix_length<=128)
 );
